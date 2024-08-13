@@ -1,0 +1,72 @@
+import yfinance as yf
+
+class StockPortfolio:
+    def __init__(self):
+        self.portfolio = {}
+
+    def add_stock(self, symbol, shares):
+        if symbol in self.portfolio:
+            self.portfolio[symbol] += shares
+        else:
+            self.portfolio[symbol] = shares
+        print(f"Added {shares} shares of {symbol} to your portfolio.")
+
+    def remove_stock(self, symbol, shares):
+        if symbol in self.portfolio:
+            if self.portfolio[symbol] > shares:
+                self.portfolio[symbol] -= shares
+                print(f"Removed {shares} shares of {symbol} from your portfolio.")
+            elif self.portfolio[symbol] == shares:
+                del self.portfolio[symbol]
+                print(f"Removed all shares of {symbol} from your portfolio.")
+            else:
+                print(f"Not enough shares of {symbol} to remove.")
+        else:
+            print(f"{symbol} is not in your portfolio.")
+
+    def view_portfolio(self):
+        print("\nYour Portfolio:")
+        if not self.portfolio:
+            print("Your portfolio is empty.")
+        else:
+            total_value = 0
+            for symbol, shares in self.portfolio.items():
+                stock_info = yf.Ticker(symbol)
+                current_price = stock_info.history(period="1d")['Close'][0]
+                value = shares * current_price
+                total_value += value
+                print(f"{symbol}: {shares} shares @ ${current_price:.2f} each, Total Value: ${value:.2f}")
+            print(f"Total Portfolio Value: ${total_value:.2f}\n")
+
+def main():
+    portfolio = StockPortfolio()
+    
+    while True:
+        print("1. Add Stock")
+        print("2. Remove Stock")
+        print("3. View Portfolio")
+        print("4. Exit")
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            symbol = input("Enter stock symbol (e.g., AAPL, MSFT): ").upper()
+            shares = int(input("Enter number of shares: "))
+            portfolio.add_stock(symbol, shares)
+        
+        elif choice == '2':
+            symbol = input("Enter stock symbol to remove: ").upper()
+            shares = int(input("Enter number of shares to remove: "))
+            portfolio.remove_stock(symbol, shares)
+        
+        elif choice == '3':
+            portfolio.view_portfolio()
+        
+        elif choice == '4':
+            print("Exiting the program.")
+            break
+        
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
